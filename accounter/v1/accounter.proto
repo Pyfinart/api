@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package accounter.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "accounter_go/api/accounter/v1;v1";
+
+// The greeting service definition.
+service Accounter {
+  // Sends a greeting
+  rpc Add (AddRequest) returns (AddReply) {
+    option (google.api.http) = {
+      post: "/Accounter"
+      body: "*"
+    };
+  }
+}
+
+message AddRequest {
+  string name = 1;
+}
+
+message AddReply {}
+
+message Record {
+  Type type = 5;
+  Category category = 6;
+  string desc = 3;
+  double amount = 4;
+  string date = 7;
+}
+
+enum Type {
+  None = 0;
+  Income = 1;
+  Expense = 2;
+}
+
+enum Category {
+  Default = 0;
+  Game = 1;
+  Food = 2;
+  Travel = 3;
+  Education = 4;
+  Health = 5;
+  Shopping = 6;
+  Other = 7;
+  Transport = 8;
+  Entertainment = 9;
+  Investment = 10;
+  Loan = 11;
+  Salary = 12;
+  OtherIncome = 13;
+  App = 14;
+  House = 15;
+  Utility = 16;
+  Gift  = 17;
+  Snacks = 18;
+}
