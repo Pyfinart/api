@@ -18,18 +18,14 @@ service Accounter {
 }
 
 message AddRequest {
-  string name = 1;
-}
-
-message AddReply {}
-
-message Record {
   Type type = 5;
   Category category = 6;
   string desc = 3;
   double amount = 4;
   string date = 7;
 }
+
+message AddReply {}
 
 enum Type {
   None = 0;
@@ -55,6 +51,6 @@ enum Category {
   App = 14;
   House = 15;
   Utility = 16;
-  Gift  = 17;
+  Gift = 17;
   Snacks = 18;
 }
