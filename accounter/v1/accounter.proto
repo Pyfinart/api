@@ -6,13 +6,34 @@ import "google/api/annotations.proto";
 
 option go_package = "accounter_go/api/accounter/v1;v1";
 
-// The greeting service definition.
+// The accounter service definition.
 service Accounter {
-  // Sends a greeting
+  // Add a new transaction
   rpc Add (AddRequest) returns (AddReply) {
     option (google.api.http) = {
-      post: "/Accounter"
+      post: "/api/transactions"
       body: "*"
+    };
+  }
+  
+  // List transactions with filters
+  rpc List (ListRequest) returns (ListReply) {
+    option (google.api.http) = {
+      get: "/api/transactions"
+    };
+  }
+  
+  // Get transaction statistics
+  rpc Stats (StatsRequest) returns (StatsReply) {
+    option (google.api.http) = {
+      get: "/api/stats"
+    };
+  }
+  
+  // Delete a transaction
+  rpc Delete (DeleteRequest) returns (DeleteReply) {
+    option (google.api.http) = {
+      delete: "/api/transactions/{id}"
     };
   }
 }
@@ -25,7 +46,64 @@ message AddRequest {
   string date = 7;
 }
 
-message AddReply {}
+message AddReply {
+  int64 id = 1;
+  string message = 2;
+}
+
+message ListRequest {
+  Type type = 1;
+  Category category = 2;
+  string start_date = 3;
+  string end_date = 4;
+  int32 page = 5;
+  int32 page_size = 6;
+}
+
+message Transaction {
+  int64 id = 1;
+  Type type = 2;
+  Category category = 3;
+  string desc = 4;
+  double amount = 5;
+  string date = 6;
+  string created_at = 7;
+}
+
+message ListReply {
+  repeated Transaction transactions = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message StatsRequest {
+  string start_date = 1;
+  string end_date = 2;
+}
+
+message CategoryStats {
+  Category category = 1;
+  string category_name = 2;
+  double amount = 3;
+  int32 count = 4;
+}
+
+message StatsReply {
+  double total_income = 1;
+  double total_expense = 2;
+  double balance = 3;
+  repeated CategoryStats income_by_category = 4;
+  repeated CategoryStats expense_by_category = 5;
+}
+
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message DeleteReply {
+  string message = 1;
+}
 
 enum Type {
   None = 0;

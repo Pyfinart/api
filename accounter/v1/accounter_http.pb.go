@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.8.3
 // - protoc             v5.28.0
-// source: accounter/v1/accounter.proto
+// source: accounter.proto
 
 package v1
 
@@ -20,15 +20,27 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationAccounterAdd = "/accounter.v1.Accounter/Add"
+const OperationAccounterDelete = "/accounter.v1.Accounter/Delete"
+const OperationAccounterList = "/accounter.v1.Accounter/List"
+const OperationAccounterStats = "/accounter.v1.Accounter/Stats"
 
 type AccounterHTTPServer interface {
-	// Add Sends a greeting
+	// Add Add a new transaction
 	Add(context.Context, *AddRequest) (*AddReply, error)
+	// Delete Delete a transaction
+	Delete(context.Context, *DeleteRequest) (*DeleteReply, error)
+	// List List transactions with filters
+	List(context.Context, *ListRequest) (*ListReply, error)
+	// Stats Get transaction statistics
+	Stats(context.Context, *StatsRequest) (*StatsReply, error)
 }
 
 func RegisterAccounterHTTPServer(s *http.Server, srv AccounterHTTPServer) {
 	r := s.Route("/")
-	r.POST("/Accounter", _Accounter_Add0_HTTP_Handler(srv))
+	r.POST("/api/transactions", _Accounter_Add0_HTTP_Handler(srv))
+	r.GET("/api/transactions", _Accounter_List0_HTTP_Handler(srv))
+	r.GET("/api/stats", _Accounter_Stats0_HTTP_Handler(srv))
+	r.DELETE("/api/transactions/{id}", _Accounter_Delete0_HTTP_Handler(srv))
 }
 
 func _Accounter_Add0_HTTP_Handler(srv AccounterHTTPServer) func(ctx http.Context) error {
@@ -53,8 +65,71 @@ func _Accounter_Add0_HTTP_Handler(srv AccounterHTTPServer) func(ctx http.Context
 	}
 }
 
+func _Accounter_List0_HTTP_Handler(srv AccounterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAccounterList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.List(ctx, req.(*ListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Accounter_Stats0_HTTP_Handler(srv AccounterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in StatsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAccounterStats)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Stats(ctx, req.(*StatsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*StatsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Accounter_Delete0_HTTP_Handler(srv AccounterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAccounterDelete)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Delete(ctx, req.(*DeleteRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AccounterHTTPClient interface {
 	Add(ctx context.Context, req *AddRequest, opts ...http.CallOption) (rsp *AddReply, err error)
+	Delete(ctx context.Context, req *DeleteRequest, opts ...http.CallOption) (rsp *DeleteReply, err error)
+	List(ctx context.Context, req *ListRequest, opts ...http.CallOption) (rsp *ListReply, err error)
+	Stats(ctx context.Context, req *StatsRequest, opts ...http.CallOption) (rsp *StatsReply, err error)
 }
 
 type AccounterHTTPClientImpl struct {
@@ -67,11 +142,50 @@ func NewAccounterHTTPClient(client *http.Client) AccounterHTTPClient {
 
 func (c *AccounterHTTPClientImpl) Add(ctx context.Context, in *AddRequest, opts ...http.CallOption) (*AddReply, error) {
 	var out AddReply
-	pattern := "/Accounter"
+	pattern := "/api/transactions"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAccounterAdd))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AccounterHTTPClientImpl) Delete(ctx context.Context, in *DeleteRequest, opts ...http.CallOption) (*DeleteReply, error) {
+	var out DeleteReply
+	pattern := "/api/transactions/{id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAccounterDelete))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AccounterHTTPClientImpl) List(ctx context.Context, in *ListRequest, opts ...http.CallOption) (*ListReply, error) {
+	var out ListReply
+	pattern := "/api/transactions"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAccounterList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AccounterHTTPClientImpl) Stats(ctx context.Context, in *StatsRequest, opts ...http.CallOption) (*StatsReply, error) {
+	var out StatsReply
+	pattern := "/api/stats"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAccounterStats))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

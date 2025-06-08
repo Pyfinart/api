@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.28.0
-// source: accounter/v1/accounter.proto
+// source: accounter.proto
 
 package v1
 
@@ -19,17 +19,26 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Accounter_Add_FullMethodName = "/accounter.v1.Accounter/Add"
+	Accounter_Add_FullMethodName    = "/accounter.v1.Accounter/Add"
+	Accounter_List_FullMethodName   = "/accounter.v1.Accounter/List"
+	Accounter_Stats_FullMethodName  = "/accounter.v1.Accounter/Stats"
+	Accounter_Delete_FullMethodName = "/accounter.v1.Accounter/Delete"
 )
 
 // AccounterClient is the client API for Accounter service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// The greeting service definition.
+// The accounter service definition.
 type AccounterClient interface {
-	// Sends a greeting
+	// Add a new transaction
 	Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddReply, error)
+	// List transactions with filters
+	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListReply, error)
+	// Get transaction statistics
+	Stats(ctx context.Context, in *StatsRequest, opts ...grpc.CallOption) (*StatsReply, error)
+	// Delete a transaction
+	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteReply, error)
 }
 
 type accounterClient struct {
@@ -50,14 +59,50 @@ func (c *accounterClient) Add(ctx context.Context, in *AddRequest, opts ...grpc.
 	return out, nil
 }
 
+func (c *accounterClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListReply)
+	err := c.cc.Invoke(ctx, Accounter_List_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accounterClient) Stats(ctx context.Context, in *StatsRequest, opts ...grpc.CallOption) (*StatsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StatsReply)
+	err := c.cc.Invoke(ctx, Accounter_Stats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accounterClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteReply)
+	err := c.cc.Invoke(ctx, Accounter_Delete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccounterServer is the server API for Accounter service.
 // All implementations must embed UnimplementedAccounterServer
 // for forward compatibility.
 //
-// The greeting service definition.
+// The accounter service definition.
 type AccounterServer interface {
-	// Sends a greeting
+	// Add a new transaction
 	Add(context.Context, *AddRequest) (*AddReply, error)
+	// List transactions with filters
+	List(context.Context, *ListRequest) (*ListReply, error)
+	// Get transaction statistics
+	Stats(context.Context, *StatsRequest) (*StatsReply, error)
+	// Delete a transaction
+	Delete(context.Context, *DeleteRequest) (*DeleteReply, error)
 	mustEmbedUnimplementedAccounterServer()
 }
 
@@ -70,6 +115,15 @@ type UnimplementedAccounterServer struct{}
 
 func (UnimplementedAccounterServer) Add(context.Context, *AddRequest) (*AddReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedAccounterServer) List(context.Context, *ListRequest) (*ListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedAccounterServer) Stats(context.Context, *StatsRequest) (*StatsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Stats not implemented")
+}
+func (UnimplementedAccounterServer) Delete(context.Context, *DeleteRequest) (*DeleteReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedAccounterServer) mustEmbedUnimplementedAccounterServer() {}
 func (UnimplementedAccounterServer) testEmbeddedByValue()                   {}
@@ -110,6 +164,60 @@ func _Accounter_Add_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Accounter_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccounterServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Accounter_List_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccounterServer).List(ctx, req.(*ListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Accounter_Stats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccounterServer).Stats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Accounter_Stats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccounterServer).Stats(ctx, req.(*StatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Accounter_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccounterServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Accounter_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccounterServer).Delete(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Accounter_ServiceDesc is the grpc.ServiceDesc for Accounter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -121,7 +229,19 @@ var Accounter_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Add",
 			Handler:    _Accounter_Add_Handler,
 		},
+		{
+			MethodName: "List",
+			Handler:    _Accounter_List_Handler,
+		},
+		{
+			MethodName: "Stats",
+			Handler:    _Accounter_Stats_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Accounter_Delete_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "accounter/v1/accounter.proto",
+	Metadata: "accounter.proto",
 }
