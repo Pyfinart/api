@@ -30,6 +30,13 @@ service Accounter {
     };
   }
   
+  // Get period statistics (monthly/yearly/weekly)
+  rpc PeriodStats (PeriodStatsRequest) returns (PeriodStatsReply) {
+    option (google.api.http) = {
+      get: "/api/period-stats"
+    };
+  }
+  
   // Delete a transaction
   rpc Delete (DeleteRequest) returns (DeleteReply) {
     option (google.api.http) = {
@@ -95,6 +102,36 @@ message StatsReply {
   double balance = 3;
   repeated CategoryStats income_by_category = 4;
   repeated CategoryStats expense_by_category = 5;
+}
+
+// New period statistics messages
+message PeriodStatsRequest {
+  PeriodType period_type = 1;  // MONTHLY, YEARLY, WEEKLY
+  int32 year = 2;              // 年份 (如 2024)
+  int32 month = 3;             // 月份 (1-12, 仅用于MONTHLY)
+  int32 week = 4;              // 周数 (1-53, 仅用于WEEKLY)
+}
+
+message PeriodStatsReply {
+  repeated PeriodData periods = 1;
+  double total_income = 2;
+  double total_expense = 3;
+  double total_balance = 4;
+}
+
+message PeriodData {
+  string period_name = 1;      // 时间段名称 (如 "2024年1月", "第1周")
+  double income = 2;
+  double expense = 3;
+  double balance = 4;
+  int32 transaction_count = 5;
+}
+
+enum PeriodType {
+  PERIOD_TYPE_UNSPECIFIED = 0;
+  MONTHLY = 1;                 // 按月统计
+  YEARLY = 2;                  // 按年统计
+  WEEKLY = 3;                  // 按周统计
 }
 
 message DeleteRequest {
